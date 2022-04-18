@@ -23,16 +23,20 @@ namespace m211031
 
         public Text[] PlayersMoneyTexts;
         public GameObject[] Players;
+        public string[] PlayerName;
+        public int[] PlayerMoney;
         //public List<GameObject> PlayerList = new List<GameObject>();
 
         public int myPosIndex;
         // Start is called before the first frame update
         void Start()
         {
+            UpdatePlayerList();
             Instance = this;
             if (!PhotonNetwork.connected)
             {
                 PhotonNetwork.LoadLevel(0);
+                
             }
             else
             {
@@ -50,14 +54,16 @@ namespace m211031
                 PhotonNetwork.Instantiate("MyPlayer", Vector3.up * 3, Quaternion.identity, 0);
                 //UpdatePlayer();
 
-                UpdateAllPlayer();
+                //UpdateAllPlayer();
 
                 print("number of player : " + Players.Length);
+                //PlayerName[myPosIndex] = gameObject.GetComponent<PhotonView>().owner.NickName;
+                //PlayerMoney[myPosIndex] = gameObject.GetComponent<PlayerManager>().Money;
                 //PlayerManager.Instance.MyNumIndex = myPosIndex;
-                
+
                 //statusTxt.text = "기다리는중..";
                 //playBtn.interactable = false;
-                
+
             }
 
             //GameObject _obj = Instantiate(PlayerList) as GameObject;
@@ -66,36 +72,39 @@ namespace m211031
         // Update is called once per frame
         void Update()
         {
+            //PlayerManager.Instance.UpdateTotal();
             if (PhotonNetwork.isMasterClient)
             {
-
+                
+                
                 rTime -= Time.deltaTime;
+
                 if (rTime < 0)
                 {
                     rTime = 15f;
-                    UpdateAllPlayer();
+                    //UpdateAllPlayer();
                     Round++;
                     int myIndexNum = GameManager.Instance.myPosIndex;
 
 
                     //
                     AnimalManager.Instance.UpdatePrice();
-
+                    
                     
                     //UpdatePlayer();
                     //PlayerMoneyText.text = PlayerManager.Instance.name + " " + PlayerManager.Instance.Money;
                 }
                 TimeText.text = "장 마감 시간 : " + Mathf.Round(rTime);
                 RoundText.text = Round + "라운드";
-                //PlayerManager.Instance.TotalMoneyUpdate();
-                //PlayerManager.Instance.TotalMoneyUpdate();
-                //PlayerManager.Instance.TotalMoneyUpdate();
+                UpdateAllPlayer();
             }
 
             else
             {
+                //UpdateAllPlayer();
                 AnimalManager.Instance.UpdatePriceUI();
                 UpdateTime();
+                UpdateAllPlayer();
                 //TotalMoneyUpdate();
                 //PlayerManager.Instance.TotalMoneyUpdate();
             }
@@ -134,42 +143,25 @@ namespace m211031
             TimeText.text = "장 마감 시간 : " + Mathf.Round(rTime);
             RoundText.text = Round + "라운드";
         }
-        [PunRPC]
+   
         public void UpdateAllPlayer()
         {
-            ///
-
-
-                PlayersMoneyTexts[0].text = Players[0].GetComponent<PhotonView>().owner.name + " " +
-                 Players[0].GetComponent<PlayerManager>().Money;
-
-            if(Players[1]!=null)
+            for (int i = 0; i < Players.Length; i++)
             {
-                PlayersMoneyTexts[0].text = Players[0].GetComponent<PhotonView>().owner.name + " " +
-                 Players[0].GetComponent<PlayerManager>().Money;
-                PlayersMoneyTexts[1].text = Players[1].GetComponent<PhotonView>().owner.name + " " +
-                 Players[1].GetComponent<PlayerManager>().Money;
-            }
-            else if(Players[2] != null)
-            {
-                PlayersMoneyTexts[0].text = Players[0].GetComponent<PhotonView>().owner.name + " " +
-                 Players[0].GetComponent<PlayerManager>().Money;
-                PlayersMoneyTexts[1].text = Players[1].GetComponent<PhotonView>().owner.name + " " +
-                 Players[1].GetComponent<PlayerManager>().Money;
-                PlayersMoneyTexts[2].text = Players[2].GetComponent<PhotonView>().owner.name + " " +
-                 Players[2].GetComponent<PlayerManager>().Money;
-            }
-            else if (Players[3] != null)
-            {
-                PlayersMoneyTexts[0].text = Players[0].GetComponent<PhotonView>().owner.name + " " +
-                 Players[0].GetComponent<PlayerManager>().Money;
-                PlayersMoneyTexts[1].text = Players[1].GetComponent<PhotonView>().owner.name + " " +
-                 Players[1].GetComponent<PlayerManager>().Money;
-                PlayersMoneyTexts[2].text = Players[2].GetComponent<PhotonView>().owner.name + " " +
-                 Players[2].GetComponent<PlayerManager>().Money;
-                PlayersMoneyTexts[3].text = Players[3].GetComponent<PhotonView>().owner.name + " " +
-                 Players[3].GetComponent<PlayerManager>().Money;
-            }
+                {
+                    if (Players[i] == null)
+                    {
+                        PlayersMoneyTexts[i].text = "플레이어" + i + " : " + 0 + "원";
+                        return;
+                    }
+
+                    else
+                    {
+                        PlayersMoneyTexts[i].text = Players[i].GetComponent<PhotonView>().owner.NickName
+                            + " : " + Players[i].GetComponent<PlayerManager>().Money + " 원 ";
+                    }
+                }
+            }   
         }
         [PunRPC]
         public void UpdatePlayer()
@@ -206,6 +198,7 @@ namespace m211031
 
         public override void OnLeftRoom()
         {
+            UpdatePlayerList();
             print("방을 나갔습니다.");
             ExitGames.Client.Photon.Hashtable hash = PhotonNetwork.room.CustomProperties;
             print(hash["PlayerPosition"]);

@@ -34,6 +34,7 @@ namespace m211031
         // Start is called before the first frame update
         void Start()
         {
+            PlayerName.text = gameObject.GetComponent<PhotonView>().owner.NickName;
             MyNumIndex = GameManager.Instance.myPosIndex;
             
 
@@ -44,10 +45,12 @@ namespace m211031
             {
             TakeCamera();
             Instance = this;
+
             }
         
             //CameraManager.Instance.targets.Add(transform);
             GameManager.Instance.UpdatePlayerList();
+            //UpdateTotal();
             //TotalMoneyUpdate();
 
 
@@ -279,6 +282,13 @@ namespace m211031
             GameManager.Instance.PlayersMoneyTexts[myIndexNum].text =
               GameManager.Instance.Players[myIndexNum].GetComponent<PhotonView>().owner.name + " " 
                + GameManager.Instance.Players[myIndexNum].gameObject.GetComponent<PlayerManager>().Money;
+        }
+
+        [PunRPC]
+        public void UpdateTotal()
+        {
+            GameManager.Instance.PlayersMoneyTexts[MyNumIndex].text = GameManager.Instance.Players[MyNumIndex].GetComponent<PhotonView>().owner.name + " " +
+               GameManager.Instance.Players[MyNumIndex].GetComponent<PlayerManager>().Money;
         }
     }
 }

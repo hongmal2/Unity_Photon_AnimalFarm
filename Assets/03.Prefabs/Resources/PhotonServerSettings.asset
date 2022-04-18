@@ -60,4 +60,5 @@ MonoBehaviour:
   - UpdatePlayerList
   - UpdatePlayer
   - UpdateAllPlayer
+  - UpdateTotal
   DisableAutoOpenWizard: 1
