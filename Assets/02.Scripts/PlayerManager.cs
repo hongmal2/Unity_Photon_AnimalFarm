@@ -72,7 +72,7 @@ namespace m211031
             if (!GetComponent<PhotonView>().isMine) return;
 
             Vector3 movement = new Vector3(h, 0, v);
-            rig.MovePosition(rig.position + movement * 25 * Time.deltaTime);
+            rig.MovePosition(rig.position + movement * 18 * Time.deltaTime);
 
 
 
