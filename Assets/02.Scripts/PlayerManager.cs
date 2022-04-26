@@ -37,7 +37,6 @@ namespace m211031
             PlayerName.text = gameObject.GetComponent<PhotonView>().owner.NickName;
             MyNumIndex = GameManager.Instance.myPosIndex;
             
-
             Money = 1000;
             rig = GetComponent<Rigidbody>();
 
@@ -45,27 +44,10 @@ namespace m211031
             {
             TakeCamera();
             Instance = this;
-
             }
-        
-            //CameraManager.Instance.targets.Add(transform);
+     
             GameManager.Instance.UpdatePlayerList();
-            //UpdateTotal();
-            //TotalMoneyUpdate();
-
-
         }
-        //void TotalMoneyUpdate()
-        //{
-        //    int myIndexNum = GameManager.Instance.myPosIndex;
-        //    // PlayersMoneyTexts[myPosIndex].text =
-        //    //PlayersMoneyTexts[myPosIndex].gameObject.GetComponent<PhotonView>().owner.NickName +
-        //    //PlayersMoneyTexts[myPosIndex].gameObject.GetComponent<PlayerManager>().Money;
-        //    GameManager.Instance.PlayersMoneyTexts[myIndexNum].text =
-        //               $"{GetComponent<PhotonView>().owner.NickName} :" +
-        //               $" {GetComponent<PlayerManager>().Money}";
-        //}
-        // Update is called once per frame
 
         void Update()
         {
@@ -73,9 +55,6 @@ namespace m211031
 
             Vector3 movement = new Vector3(h, 0, v);
             rig.MovePosition(rig.position + movement * 18 * Time.deltaTime);
-
-
-
         }
 
         //[PunRPC]
@@ -147,8 +126,7 @@ namespace m211031
             {
                 print("현금 부족");
             }
-            transform.position = ResetTransform.transform.position;
-            
+            transform.position = ResetTransform.transform.position;  
         }
         [PunRPC]
         public void BuyCow()

@@ -61,10 +61,6 @@ namespace m211031
                     stream.SendNext(ChickenPrice);
                     stream.SendNext(CowPrice);
                     stream.SendNext(SheepPrice);
-                    //stream.SendNext(PigPriceText);
-                    //stream.SendNext(ChickenPriceText);
-                    //stream.SendNext(CowPriceText);
-                    //stream.SendNext(SheepPriceText);
                 }
                 else
                 {
@@ -72,10 +68,6 @@ namespace m211031
                     ChickenPrice = (int)stream.ReceiveNext();
                     CowPrice = (int)stream.ReceiveNext();
                     SheepPrice = (int)stream.ReceiveNext();
-                    //PigPriceText = (Text)stream.ReceiveNext();
-                    //ChickenPriceText = (Text)stream.ReceiveNext();
-                    //CowPriceText = (Text)stream.ReceiveNext();
-                    //SheepPriceText = (Text)stream.ReceiveNext();
                 }
         }
     }

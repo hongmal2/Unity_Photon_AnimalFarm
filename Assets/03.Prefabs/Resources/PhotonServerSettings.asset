@@ -61,4 +61,8 @@ MonoBehaviour:
   - UpdatePlayer
   - UpdateAllPlayer
   - UpdateTotal
+  - MyReadyGame
+  - MyStartGame
+  - PlayerLeftRoom
+  - RoomStart
   DisableAutoOpenWizard: 1

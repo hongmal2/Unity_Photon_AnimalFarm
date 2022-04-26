@@ -111,25 +111,15 @@ namespace m211031
             //PlayerManager.Instance.TotalMoneyUpdate();
         }
         [PunRPC]
-        public void UpdateMyMoney()
+        public void UpdateMyMoney() // 플레이어 개인 UI 변경 ( 게임머니 보유 양 )
         {
             MoneyText.text = "현금 :" + " " + PlayerManager.Instance.Money;
 
             
         }
 
-        //[PunRPC]
-        //public void TotalMoneyUpdate()
-
-        //{
-        //    GameManager.Instance.PlayersMoneyTexts[0].text =
-        //                   GameManager.Instance.Players[0].GetComponent<PhotonView>().owner.name
-        //                   + " " + GameManager.Instance.Players[0].gameObject.GetComponent<PlayerManager>().Money
-        //    + "\n" + GameManager.Instance.Players[1].GetComponent<PhotonView>().owner.name
-        //                   + " " + GameManager.Instance.Players[1].gameObject.GetComponent<PlayerManager>().Money;
-        //}
         [PunRPC]
-        public void UpdateCount()
+        public void UpdateCount() // 플레이어 개인 UI 변경 ( 동물 보유 수 )
         {
             PigCountText.gameObject.GetComponent<Text>().text = "돼지" + " " + PlayerManager.Instance.PigCount;
             ChickenCountText.gameObject.GetComponent<Text>().text = "닭" + " " + PlayerManager.Instance.ChickenCount;
@@ -138,12 +128,21 @@ namespace m211031
         }
 
         [PunRPC]
-        public void UpdateTime()
+        public void UpdateTime() // 플레이어 전체 UI 변경 ( 시간 , 라운드 )
         {
             TimeText.text = "장 마감 시간 : " + Mathf.Round(rTime);
             RoundText.text = Round + "라운드";
         }
    
+        [PunRPC]
+        public void UpdatePlayer()
+        {
+            print(myPosIndex);
+            PlayersMoneyTexts[myPosIndex].text =
+            PlayersMoneyTexts[myPosIndex].gameObject.GetComponent<PhotonView>().owner.NickName +
+            PlayersMoneyTexts[myPosIndex].gameObject.GetComponent<PlayerManager>().Money;
+        }
+
         public void UpdateAllPlayer()
         {
             for (int i = 0; i < Players.Length; i++)
@@ -162,14 +161,6 @@ namespace m211031
                     }
                 }
             }   
-        }
-        [PunRPC]
-        public void UpdatePlayer()
-        {
-            print(myPosIndex);
-            PlayersMoneyTexts[myPosIndex].text =
-            PlayersMoneyTexts[myPosIndex].gameObject.GetComponent<PhotonView>().owner.NickName +
-            PlayersMoneyTexts[myPosIndex].gameObject.GetComponent<PlayerManager>().Money;
         }
         int findEmptyIndex(ref string str)
         {

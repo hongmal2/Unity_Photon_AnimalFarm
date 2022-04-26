@@ -82,7 +82,7 @@ namespace m211031
         {
             print("방을 만들었음");
             ExitGames.Client.Photon.Hashtable hash =
-                PhotonNetwork.room.customProperties;
+                PhotonNetwork.room.customProperties; // 방에 커스텀프로퍼티 적용
 
             hash["PlayerPosition"] = "xxx";
             PhotonNetwork.room.SetCustomProperties(hash);

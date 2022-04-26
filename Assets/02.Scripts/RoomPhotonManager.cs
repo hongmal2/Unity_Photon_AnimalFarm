@@ -8,6 +8,7 @@ namespace m211031
 {
     public class RoomPhotonManager : Photon.PunBehaviour
     {
+        public static RoomPhotonManager Instance;
         //버튼 관련
         public GameObject ExitButton;
         public Text ButtonText;
@@ -37,6 +38,12 @@ namespace m211031
         public bool Player3Ready = true;
         public bool Player4Ready = true;
 
+        //플레이어 위치 
+        public Transform P1Pos;
+        public Transform P2Pos;
+        public Transform P3Pos;
+        public Transform P4Pos;
+
         private void Awake()
         {
             PhotonNetwork.automaticallySyncScene = true;
@@ -44,7 +51,7 @@ namespace m211031
         // Start is called before the first frame update
         void Start()
         {
-
+            Instance = this;
             // 해쉬테이블 설정
             if (!PhotonNetwork.connected)
             {
@@ -53,21 +60,17 @@ namespace m211031
             }
             else
             {
+                // 3인 까지 접속 가능한 플레이어 넘버 부여
                 ExitGames.Client.Photon.Hashtable hash = PhotonNetwork.room.CustomProperties;
                 print(hash["PlayerPosition"]);
                 string playerPosStr = (string)hash["PlayerPosition"]; // xxx
                 myPosIndex = findEmptyIndex(ref playerPosStr); // oxx
                 myPlayerNum = myPosIndex+1;
                 hash["PlayerPosition"] = playerPosStr;
-                print(myPosIndex);
-                print($"나의 자리는 {myPosIndex + 1} 번 입니다.");
-                print(PhotonPlayer.Find(2));
-                //transform.position = positions[myPosIndex].position;
 
                 PhotonNetwork.room.SetCustomProperties(hash);
-                print(PhotonNetwork.playerName);
-          
 
+                PhotonNetwork.Instantiate("P1", Vector3.up * 3, Quaternion.identity, 0); // 플레이어 프리팹 생성
             }
 
             // 준비버튼 , 시작버튼 설정
@@ -82,12 +85,39 @@ namespace m211031
                 StartButton.SetActive(false);
             }
 
+            RoomStart();
+            
+        }
+
+
+        private void Update()
+        {
+            // 모든 플레이어 준비 여부 체크
+            if (Player1Ready && Player2Ready && Player3Ready && Player4Ready)
+                AllPlayerReady = true;
+            else
+                AllPlayerReady = false;
+
+        }
+
+        public void MakePlayer()
+        {
+            if(myPlayerNum == 1)
+            PhotonNetwork.Instantiate("P1", Vector3.up * 3, Quaternion.identity, 0);
+
+            else if(myPlayerNum == 2)
+                PhotonNetwork.Instantiate("P2", Vector3.up * 3, Quaternion.identity, 0);
+        }
+
+        [PunRPC]
+        public void RoomStart()
+        {
             // 플레이어 이름 UI 설정
             if (myPlayerNum == 1)
             {
                 Player1Name.text = PhotonNetwork.playerName;
                 Player1Image.SetActive(true);
-                
+
             }
 
             else if (myPlayerNum == 2)
@@ -109,22 +139,14 @@ namespace m211031
                 Player4Ready = false;
             }
         }
-
-        private void Update()
-        {
-            // 모든 플레이어 준비 여부 체크
-            if (Player1Ready && Player2Ready && Player3Ready && Player4Ready)
-                AllPlayerReady = true;
-            else
-                AllPlayerReady = false;
-
-        }
         public void MyExitRoom()
         {
             PhotonNetwork.Disconnect();
+            PhotonNetwork.LeaveRoom();
             PhotonNetwork.LoadLevel(0);
         }
 
+        [PunRPC]
         public void MyStartGame()
         {
             // 내가 마스터 클라이언트고 모든 플레이어가 준비완료 했을 때
@@ -132,8 +154,10 @@ namespace m211031
                 PhotonNetwork.LoadLevel(2);
         }
 
+        [PunRPC]
         public void MyReadyGame()
         {
+
             if (isReady == false)
             {
                 isReady = true;
@@ -142,24 +166,20 @@ namespace m211031
 
                 if (myPlayerNum == 1)
                 {
-                    Player1Image.GetComponent<Image>().color = Color.red; // 준비완료 색 변경
-                    Player1Ready = true; // 준비완료 상태 변경
+                    //RoomPlayerManager.Instance
                 }
 
                 else if (myPlayerNum == 2)
                 {
-                    Player2Image.GetComponent<Image>().color = Color.red;
-                    Player2Ready = true;
+         
                 }
                 else if (myPlayerNum == 3)
                 {
-                    Player3Image.GetComponent<Image>().color = Color.red;
-                    Player3Ready = true;
+         
                 }
                 else if (myPlayerNum == 4)
                 {
-                    Player4Image.GetComponent<Image>().color = Color.red;
-                    Player4Ready = true;
+          
                 }
             }
 
@@ -171,31 +191,27 @@ namespace m211031
 
                 if (myPlayerNum == 1)
                 {
-                    Player1Image.GetComponent<Image>().color = Color.white;
-                    Player1Ready = false;
+         
                 }
 
                 else if (myPlayerNum == 2)
                 {
-                    Player2Image.GetComponent<Image>().color = Color.white;
-                    Player2Ready = false;
+           
                 }
                 else if (myPlayerNum == 3)
                 {
-                    Player3Image.GetComponent<Image>().color = Color.white;
-                    Player3Ready = false;
+         
                 }
                 else if (myPlayerNum == 4)
                 {
-                    Player4Image.GetComponent<Image>().color = Color.white;
-                    Player4Ready = false;
+          
                 }
             }
         }
 
         public override void OnLeftRoom()
         {
-
+            // 플레이어 접속종료시 플레이어 수를 세기 위해 커스텀프로퍼티 값 수정
             print("방을 나갔습니다.");
             ExitGames.Client.Photon.Hashtable hash = PhotonNetwork.room.CustomProperties;
             print(hash["PlayerPosition"]);
@@ -208,13 +224,20 @@ namespace m211031
             hash["PlayerPosition"] = playerPos;
             PhotonNetwork.room.SetCustomProperties(hash);
 
+            PlayerLeftRoom();
+            
+        }
+
+        [PunRPC]
+        public void PlayerLeftRoom()
+        {
             // 플레이어 나가면 UI 꺼짐
             if (myPlayerNum == 1)
             {
                 Player1Name.text = " ";
                 Player1Image.SetActive(false);
                 Player1Image.GetComponent<Image>().color = Color.white;
-                
+
             }
 
             else if (myPlayerNum == 2)
@@ -236,7 +259,6 @@ namespace m211031
                 Player4Image.GetComponent<Image>().color = Color.white;
             }
         }
-
         int findEmptyIndex(ref string str)
         {
             print("---------------------------");
@@ -249,7 +271,30 @@ namespace m211031
             print($"수정 : {str}"); //수정후 str
             return myIndex;
         }
+
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            if (stream.isWriting)
+            {
+                stream.SendNext(Player1Ready);
+                stream.SendNext(Player2Ready);
+                stream.SendNext(Player3Ready);
+                stream.SendNext(Player4Ready);
+            }
+
+            else
+            {
+                Player1Ready = (bool)stream.ReceiveNext();
+                Player2Ready = (bool)stream.ReceiveNext();
+                Player3Ready = (bool)stream.ReceiveNext();
+                Player4Ready = (bool)stream.ReceiveNext();
+            }
+        }
+
+
     }
+
+   
 
 
 }
